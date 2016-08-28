@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+apply plugin: 'application'
 
 repositories {
     mavenLocal()
@@ -26,3 +27,5 @@ dependencies {
     testCompile 'io.vertx:vertx-unit:3.3.2'
     testCompile 'junit:junit:4.12'
 }
+
+mainClassName="io.bigpanda.exercise.Main"

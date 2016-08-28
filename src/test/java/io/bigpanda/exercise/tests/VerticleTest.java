@@ -124,36 +124,7 @@ public class VerticleTest {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                context.assertTrue(Integer.valueOf(1).equals(content.get("amet")));
-
-                async.complete();
-            });
-        });
-
-        vertx.createHttpClient().getNow(8888, "localhost", "/events/baz/words", result -> {
-            result.handler(body -> {
-                HashMap<String, Integer> content = null;
-                try {
-                    content = new ObjectMapper().readValue(body.toString(), HashMap.class);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                context.assertTrue(Integer.valueOf(0).equals(content.get("lorem")));
-
-                async.complete();
-            });
-        });
-
-        vertx.createHttpClient().getNow(8888, "localhost", "/events/foo/words", result -> {
-            result.handler(body -> {
-                HashMap<String, Integer> content = null;
-                try {
-                    content = new ObjectMapper().readValue(body.toString(), HashMap.class);
-                    System.out.println(content);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                context.assertTrue(Integer.valueOf(0).equals(content.get("lorem")));
+                context.assertTrue(Integer.valueOf(2).equals(content.get("amet")));
 
                 async.complete();
             });

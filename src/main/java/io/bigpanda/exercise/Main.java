@@ -20,7 +20,8 @@ import java.io.InputStreamReader;
  */
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
-
+    private static final String EXECUTABLE = "./generator-linux-amd64";
+    private static final String EVENT_BUS_ADDRESS = "bigpanda";
 
     public static void main(String[] args) throws IOException {
         VertxOptions options = new VertxOptions();
@@ -34,14 +35,14 @@ public class Main {
             if (result.succeeded()) {
                 DeploymentOptions deploymentOptions = new DeploymentOptions();
                 deploymentOptions.setWorker(true);
-                vertx.deployVerticle(createProcessingVerticle(vertx), deploymentOptions);
+                vertx.deployVerticle(createProcessingVerticle(vertx, EXECUTABLE, EVENT_BUS_ADDRESS), deploymentOptions);
             }
         });
     }
 
-    private static ProcessingVerticle createProcessingVerticle(Vertx vertx) {
-        BufferedReader reader = new BufferedReader(startProcess("./generator-linux-amd64"));
-        EventsSubscriber subscriber = new EventsSubscriber(vertx.eventBus(), "bigpanda");
+    private static ProcessingVerticle createProcessingVerticle(Vertx vertx, String path, String eventBusAddress) {
+        BufferedReader reader = new BufferedReader(startProcess(path));
+        EventsSubscriber subscriber = new EventsSubscriber(vertx.eventBus(), eventBusAddress);
         EventProcessor eventProcessor = new InputStreamProcessor(subscriber, reader);
 
         return new ProcessingVerticle(eventProcessor);
@@ -50,6 +51,7 @@ public class Main {
     private static InputStreamReader startProcess(String processName) {
         ProcessBuilder processBuilder = new ProcessBuilder(processName);
         Process p = null;
+
         try {
             p = processBuilder.start();
         } catch (IOException e) {
