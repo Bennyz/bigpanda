@@ -21,7 +21,6 @@ public class EventsSubscriber extends Subscriber<Event> {
 
     private final Map<String, Integer> eventTypes = new HashMap<>();
     private final Map<String, Map<String, Integer>> wordsCount = new HashMap<>();
-    private final Map<String, Integer> words = new HashMap<>();
 
     private EventBus eventBus;
 
@@ -34,6 +33,8 @@ public class EventsSubscriber extends Subscriber<Event> {
     public void onNext(Event e) {
         String eventType = e.getEventType();
         eventTypes.put(e.getEventType(), eventTypes.getOrDefault(e.getEventType(), 0) + 1);
+
+        Map<String, Integer> words = new HashMap<>();
 
         if (wordsCount.get(eventType) == null) {
             words.put(e.getData(), 1);
