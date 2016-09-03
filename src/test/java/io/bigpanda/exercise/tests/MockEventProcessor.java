@@ -2,7 +2,6 @@ package io.bigpanda.exercise.tests;
 
 import io.bigpanda.exercise.model.Event;
 import io.bigpanda.exercise.processing.EventProcessor;
-import io.bigpanda.exercise.processing.subscriber.EventsSubscriber;
 import io.bigpanda.exercise.utils.Utils;
 import rx.Observable;
 import rx.functions.Func1;
@@ -16,9 +15,9 @@ import java.util.List;
 public class MockEventProcessor implements EventProcessor {
 
     private List<String> strings = new ArrayList<>();
-    private EventsSubscriber subscriber;
+    private MockEventSubscriber subscriber;
 
-    public MockEventProcessor(List<String> strings, EventsSubscriber subscriber) {
+    public MockEventProcessor(List<String> strings, MockEventSubscriber subscriber) {
         this.strings = strings;
         this.subscriber = subscriber;
     }

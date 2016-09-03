@@ -7,6 +7,7 @@ import io.bigpanda.exercise.processing.subscriber.EventsSubscriber;
 import io.bigpanda.exercise.rest.RESTVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by benny on 8/28/16.
@@ -30,11 +32,16 @@ public class VerticleTest {
 
     @Before
     public void setUp(TestContext context) {
-        vertx = Vertx.vertx();
+        VertxOptions options = new VertxOptions();
 
+        // Stop the blocking thread warning
+        options.setBlockedThreadCheckInterval(1000 * 60 * 60);
+
+        vertx = Vertx.vertx(options);
+        Async async = context.async();
         vertx.deployVerticle(new RESTVerticle(), new DeploymentOptions().setConfig(new JsonObject().put("http.port", 8888)), result -> {
             if (result.succeeded()) {
-                vertx.deployVerticle(createProcessingVerticle(vertx), new DeploymentOptions().setWorker(true));
+                vertx.deployVerticle(createProcessingVerticle(vertx, async), new DeploymentOptions().setWorker(true));
             } else {
                 context.fail("Something happened");
             }
@@ -43,27 +50,24 @@ public class VerticleTest {
 
     @Test
     public void testEventTypes(TestContext context) throws InterruptedException {
-        // Can be improved using future with a mock subscriber
-        Thread.sleep(5000);
-        Async async = context.async();
-
+        Async async = context.async(3);
         vertx.createHttpClient().getNow(8888, "localhost", "/events/baz", result -> {
             result.handler(body -> {
-                HashMap<String, Integer> content = null;
+                Map<String, Integer> content = null;
                 try {
                     content = new ObjectMapper().readValue(body.toString(), HashMap.class);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                context.assertTrue(Integer.valueOf(2).equals(content.get("baz")));
 
-                async.complete();
+                context.assertTrue(Integer.valueOf(2).equals(content.get("baz")));
+                async.countDown();
             });
         });
 
         vertx.createHttpClient().getNow(8888, "localhost", "/events/bar", result -> {
             result.handler(body -> {
-                HashMap<String, Integer> content = null;
+                Map<String, Integer> content = null;
 
                 try {
                     content = new ObjectMapper().readValue(body.toString(), HashMap.class);
@@ -71,15 +75,15 @@ public class VerticleTest {
                     e.printStackTrace();
                 }
 
-                context.assertTrue(Integer.valueOf(3).equals(content.get("bar")));
 
-                async.complete();
+                context.assertTrue(Integer.valueOf(3).equals(content.get("bar")));
+                async.countDown();
             });
         });
 
         vertx.createHttpClient().getNow(8888, "localhost", "/events/foo", result -> {
             result.handler(body -> {
-                HashMap<String, Integer> content = null;
+                Map<String, Integer> content = null;
 
                 try {
                     content = new ObjectMapper().readValue(body.toString(), HashMap.class);
@@ -88,19 +92,16 @@ public class VerticleTest {
                 }
 
                 context.assertTrue(Integer.valueOf(0).equals(content.get("foo")));
-
-                async.complete();
+                async.countDown();
             });
         });
-
     }
 
 
     @Test
     public void testWords(TestContext context) throws InterruptedException {
         // Can be improved using future with a mock subscriber
-        Thread.sleep(5000);
-        Async async = context.async();
+        Async async = context.async(2);
 
         vertx.createHttpClient().getNow(8888, "localhost", "/events/bar/words", result -> {
             result.handler(body -> {
@@ -112,7 +113,7 @@ public class VerticleTest {
                 }
                 context.assertTrue(Integer.valueOf(3).equals(content.get("ipsum")));
 
-                async.complete();
+                async.countDown();
             });
         });
 
@@ -125,15 +126,16 @@ public class VerticleTest {
                     e.printStackTrace();
                 }
                 context.assertTrue(Integer.valueOf(2).equals(content.get("amet")));
+                async.countDown();
 
-                async.complete();
             });
         });
     }
 
-    private ProcessingVerticle createProcessingVerticle(Vertx vertx) {
+    private ProcessingVerticle createProcessingVerticle(Vertx vertx, Async async) {
         final EventsSubscriber eventsSubscriber = new EventsSubscriber(vertx.eventBus(), "bigpanda");
-        final EventProcessor eventProcessor = new MockEventProcessor(createJSONList(), eventsSubscriber);
+        final MockEventSubscriber mockEventSubscriber = new MockEventSubscriber(eventsSubscriber, vertx.eventBus(), "bigpanda", async);
+        final EventProcessor eventProcessor = new MockEventProcessor(createJSONList(), mockEventSubscriber);
 
         return new ProcessingVerticle(eventProcessor);
     }
