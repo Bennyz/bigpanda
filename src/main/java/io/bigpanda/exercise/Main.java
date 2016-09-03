@@ -1,8 +1,9 @@
 package io.bigpanda.exercise;
 
-import io.bigpanda.exercise.processing.ProcessingVerticle;
+import io.bigpanda.exercise.jmx.ProccessingMBean;
 import io.bigpanda.exercise.processing.EventProcessor;
 import io.bigpanda.exercise.processing.InputStreamProcessor;
+import io.bigpanda.exercise.processing.ProcessingVerticle;
 import io.bigpanda.exercise.processing.subscriber.EventsSubscriber;
 import io.bigpanda.exercise.rest.RESTVerticle;
 import io.vertx.core.DeploymentOptions;
@@ -11,9 +12,11 @@ import io.vertx.core.VertxOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.management.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.management.ManagementFactory;
 
 /**
  * Created by benny on 8/19/16
@@ -40,10 +43,23 @@ public class Main {
         });
     }
 
+    private static void setUpJMX(InputStreamProcessor processor) throws Exception {
+        MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+        StandardMBean mbean = new StandardMBean(processor, ProccessingMBean.class);
+        ObjectName name = new ObjectName("io.bigpanda:type=EventCount");
+        mBeanServer.registerMBean(mbean, name);
+    }
+
     private static ProcessingVerticle createProcessingVerticle(Vertx vertx, String path, String eventBusAddress) {
         BufferedReader reader = new BufferedReader(startProcess(path));
         EventsSubscriber subscriber = new EventsSubscriber(vertx.eventBus(), eventBusAddress);
         EventProcessor eventProcessor = new InputStreamProcessor(subscriber, reader);
+
+        try {
+            setUpJMX((InputStreamProcessor)eventProcessor);
+        } catch (Exception e) {
+            logger.error("Something bad happened");
+        }
 
         return new ProcessingVerticle(eventProcessor);
     }

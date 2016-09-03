@@ -1,5 +1,6 @@
 package io.bigpanda.exercise.processing;
 
+import io.bigpanda.exercise.jmx.ProccessingMBean;
 import io.bigpanda.exercise.model.Event;
 import io.bigpanda.exercise.processing.subscriber.EventsSubscriber;
 import io.bigpanda.exercise.utils.Utils;
@@ -14,15 +15,17 @@ import java.io.Reader;
 /**
  * Created by benny on 8/28/16.
  */
-public class InputStreamProcessor implements EventProcessor {
+public class InputStreamProcessor implements EventProcessor, ProccessingMBean {
     private static final Logger logger = LogManager.getLogger(ProcessingVerticle.class);
 
     private EventsSubscriber subscriber;
     private Reader reader;
+    private volatile int count;
 
     public InputStreamProcessor(EventsSubscriber subscriber, Reader reader) {
         this.subscriber = subscriber;
         this.reader = reader;
+        count = 0;
     }
 
     private void processInput(EventsSubscriber subscriber, Reader reader) {
@@ -34,6 +37,7 @@ public class InputStreamProcessor implements EventProcessor {
                     if (e == null) {
                         return Observable.empty();
                     } else {
+                        count++;
                         return Observable.just(e);
                     }
                 })
@@ -45,4 +49,8 @@ public class InputStreamProcessor implements EventProcessor {
         processInput(subscriber, reader);
     }
 
+    @Override
+    public int getEventCount() {
+        return count;
+    }
 }

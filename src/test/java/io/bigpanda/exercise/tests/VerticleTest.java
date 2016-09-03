@@ -100,7 +100,6 @@ public class VerticleTest {
 
     @Test
     public void testWords(TestContext context) throws InterruptedException {
-        // Can be improved using future with a mock subscriber
         Async async = context.async(2);
 
         vertx.createHttpClient().getNow(8888, "localhost", "/events/bar/words", result -> {
