@@ -11,6 +11,7 @@ import rx.functions.Func1;
 import rx.observables.StringObservable;
 
 import java.io.Reader;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by benny on 8/28/16.
@@ -20,12 +21,12 @@ public class InputStreamProcessor implements EventProcessor, ProccessingMBean {
 
     private EventsSubscriber subscriber;
     private Reader reader;
-    private volatile int count;
+    private AtomicInteger count;
 
     public InputStreamProcessor(EventsSubscriber subscriber, Reader reader) {
         this.subscriber = subscriber;
         this.reader = reader;
-        count = 0;
+        count = new AtomicInteger(0);
     }
 
     private void processInput(EventsSubscriber subscriber, Reader reader) {
@@ -37,7 +38,8 @@ public class InputStreamProcessor implements EventProcessor, ProccessingMBean {
                     if (e == null) {
                         return Observable.empty();
                     } else {
-                        count++;
+                        count.set(count.incrementAndGet());
+
                         return Observable.just(e);
                     }
                 })
@@ -51,6 +53,6 @@ public class InputStreamProcessor implements EventProcessor, ProccessingMBean {
 
     @Override
     public int getEventCount() {
-        return count;
+        return count.get();
     }
 }
