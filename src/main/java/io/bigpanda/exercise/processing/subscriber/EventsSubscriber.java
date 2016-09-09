@@ -52,7 +52,7 @@ public class EventsSubscriber extends Subscriber<Event> {
             logger.error("Failed parsing JSON");
         }
 
-        logger.debug(String.format("Added event %s", e));
+        logger.debug("Added event {}", e);
     }
 
 

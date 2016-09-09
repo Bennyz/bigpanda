@@ -32,7 +32,7 @@ public class InputStreamProcessor implements EventProcessor, ProccessingMBean {
     private void processInput(EventsSubscriber subscriber, Reader reader) {
         StringObservable.byLine(StringObservable.from(reader))
                 .flatMap((Func1<String, Observable<Event>>) s -> {
-                    logger.debug(String.format("Read event: %s", s));
+                    logger.debug("Read event: {}", s);
                     Event e = Utils.JSONToObject(s, Event.class);
 
                     if (e == null) {

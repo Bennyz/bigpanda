@@ -82,7 +82,7 @@ public class RESTVerticle extends AbstractVerticle {
         logger.debug("Started updating...");
         eventBus.consumer(config().getString("eventbus.address", "bigpanda"), event -> {
             try {
-                logger.debug(String.format("Incoming message: %s", event.body().toString()));
+                logger.debug("Incoming message: {}", event.body().toString());
                 this.stats = new ObjectMapper().readValue(event.body().toString(), Stats.class);
             } catch (IOException e) {
                 logger.error("Failed serialization", e);
