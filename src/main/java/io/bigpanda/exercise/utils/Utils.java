@@ -12,10 +12,9 @@ import java.io.IOException;
 public class Utils {
 
     private static final Logger logger = LogManager.getLogger(Utils.class);
-
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static <T> T JSONToObject(String s, Class<T> T) {
-        ObjectMapper objectMapper = new ObjectMapper();
         try {
             return objectMapper.readValue(s, T);
         } catch (IOException e) {
