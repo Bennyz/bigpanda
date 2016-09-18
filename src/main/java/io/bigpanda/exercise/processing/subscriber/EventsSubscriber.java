@@ -23,6 +23,7 @@ public class EventsSubscriber extends Subscriber<Event> {
     private final Map<String, Map<String, Integer>> wordsCount = new HashMap<>();
 
     private EventBus eventBus;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     public EventsSubscriber(EventBus eventBus, String address) {
         this.eventBus = eventBus;
@@ -34,7 +35,7 @@ public class EventsSubscriber extends Subscriber<Event> {
         String eventType = e.getEventType();
         eventTypes.put(e.getEventType(), eventTypes.getOrDefault(e.getEventType(), 0) + 1);
 
-        Map<String, Integer> words = new HashMap<>();
+        Map<String, Integer> words = wordsCount.getOrDefault(eventType, new HashMap<>());
 
         if (wordsCount.get(eventType) == null) {
             words.put(e.getData(), 1);
@@ -46,7 +47,7 @@ public class EventsSubscriber extends Subscriber<Event> {
         Stats stats = new Stats(eventTypes, wordsCount);
 
         try {
-            String message =  new ObjectMapper().writeValueAsString(stats);
+            String message =  objectMapper.writeValueAsString(stats);
             eventBus.publish(address, message);
         } catch (JsonProcessingException e1) {
             logger.error("Failed parsing JSON");

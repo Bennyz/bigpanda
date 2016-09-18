@@ -20,8 +20,7 @@ public class ProcessingVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws IOException {
-        logger.debug("Processing" +
-                " started...");
+        logger.debug("Processing started...");
         eventProcessor.process();
 
     }

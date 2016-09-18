@@ -38,7 +38,7 @@ public class InputStreamProcessor implements EventProcessor, ProccessingMBean {
                     if (e == null) {
                         return Observable.empty();
                     } else {
-                        count.set(count.incrementAndGet());
+                        count.incrementAndGet();
 
                         return Observable.just(e);
                     }

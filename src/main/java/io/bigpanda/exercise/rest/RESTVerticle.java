@@ -24,6 +24,7 @@ public class RESTVerticle extends AbstractVerticle {
     private final static Logger logger = LogManager.getLogger(RESTVerticle.class);
 
     private static Stats stats = new Stats();
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void start() throws Exception {
@@ -48,7 +49,7 @@ public class RESTVerticle extends AbstractVerticle {
             String result = "";
 
             try {
-                result = new ObjectMapper().writeValueAsString(new HashMap<String, Integer>() {{
+                result = objectMapper.writeValueAsString(new HashMap<String, Integer>() {{
                     put(eventType, eventCount);
                 }});
             } catch (JsonProcessingException e) {
@@ -66,7 +67,7 @@ public class RESTVerticle extends AbstractVerticle {
             String result = "";
 
             try {
-                result = new ObjectMapper().writeValueAsString(stats.getWordsCount().get(eventType));
+                result = objectMapper.writeValueAsString(stats.getWordsCount().get(eventType));
             } catch (JsonProcessingException e) {
                 logger.error("Something bad must have happened", e);
                 result = "An error occurred";
@@ -83,7 +84,7 @@ public class RESTVerticle extends AbstractVerticle {
         eventBus.consumer(config().getString("eventbus.address", "bigpanda"), event -> {
             try {
                 logger.debug("Incoming message: {}", event.body().toString());
-                this.stats = new ObjectMapper().readValue(event.body().toString(), Stats.class);
+                this.stats = objectMapper.readValue(event.body().toString(), Stats.class);
             } catch (IOException e) {
                 logger.error("Failed serialization", e);
             }

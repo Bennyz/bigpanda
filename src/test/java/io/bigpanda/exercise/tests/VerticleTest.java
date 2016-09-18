@@ -28,13 +28,13 @@ import java.util.Map;
 @RunWith(VertxUnitRunner.class)
 public class VerticleTest {
     private Vertx vertx;
-    private int port;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @Before
     public void setUp(TestContext context) {
         VertxOptions options = new VertxOptions();
 
-        // Stop the blocking thread warning
+        // Stop the blocking thread warning0);
         options.setBlockedThreadCheckInterval(1000 * 60 * 60);
 
         vertx = Vertx.vertx(options);
@@ -55,7 +55,7 @@ public class VerticleTest {
             result.handler(body -> {
                 Map<String, Integer> content = null;
                 try {
-                    content = new ObjectMapper().readValue(body.toString(), HashMap.class);
+                    content = objectMapper.readValue(body.toString(), HashMap.class);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -70,7 +70,7 @@ public class VerticleTest {
                 Map<String, Integer> content = null;
 
                 try {
-                    content = new ObjectMapper().readValue(body.toString(), HashMap.class);
+                    content = objectMapper.readValue(body.toString(), HashMap.class);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -86,7 +86,7 @@ public class VerticleTest {
                 Map<String, Integer> content = null;
 
                 try {
-                    content = new ObjectMapper().readValue(body.toString(), HashMap.class);
+                    content = objectMapper.readValue(body.toString(), HashMap.class);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -106,7 +106,7 @@ public class VerticleTest {
             result.handler(body -> {
                 HashMap<String, Integer> content = null;
                 try {
-                    content = new ObjectMapper().readValue(body.toString(), HashMap.class);
+                    content = objectMapper.readValue(body.toString(), HashMap.class);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -120,7 +120,7 @@ public class VerticleTest {
             result.handler(body -> {
                 HashMap<String, Integer> content = null;
                 try {
-                    content = new ObjectMapper().readValue(body.toString(), HashMap.class);
+                    content = objectMapper.readValue(body.toString(), HashMap.class);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
